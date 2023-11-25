@@ -1,0 +1,43 @@
+@import url('https://fonts.googleapis.com/css2?family=Michroma&display=swap');
+
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+    font-family: 'Michroma', sans-serif;
+    color: white;
+    background-color: #080219;
+}
+
+body {
+    text-align: center;
+    background-color: #080219;
+}
+
+#userGameName {
+    font-size: 45px;
+}
+
+#board {
+    background-color: #080219;
+}
+@media screen and (min-width:250px) and (max-width:500px){
+    #board{
+        width: 300px;
+        height: 500px;
+        margin-top: 30%;
+    }
+
+    #userGameName{
+        font-size: medium;
+    }
+    
+    div#mobileControls{
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        
+    }
+
+    
+}

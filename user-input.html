@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Battles</title>
+    <!-- ICON -->
+    <link rel="page icon" href="icons8-spaceship-wanicon-lineal-color/icons8-spaceship-16.png">
+    <!-- link css -->
+    <link rel="stylesheet" href="instruction.css">
+</head>
+<body>
+    <img id="background-img" src="./images/game bg.jpg">
+    <div id="input-box">
+         <div id="container">
+                <img id="logo" src="./icons8-spaceship-wanicon-lineal-color/icons8-spaceship-64.png" alt="logo">
+                    <div class="text-input">   
+                        <p class="user-input">Your name</p>
+                        <input placeholder="Enter your name" class="user-input box" type="text" name="username" id="username">
+                        <p class="user-input">Give a name for your space warrior</p>
+                        <input placeholder="Enter your characters name"class="user-input box" type="text" name="username" id="warriorname">
+        
+                    </div>
+                    
+                    <button id="go-back-btn">Go back</button>
+                    <button id="play-btn">Ready</button>
+                </div>
+        </div>
+        <!-- audio button -->
+        <audio id="audioElement" src="./audio/space-atmospheric-background-124841.mp3" autoplay loop></audio>
+    <script src="game-play.js"></script>
+    <script src="user-input.js"></script>
+</body>
+</html>
