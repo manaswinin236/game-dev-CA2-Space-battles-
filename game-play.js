@@ -109,7 +109,8 @@ window.onload = function() {
     document.addEventListener("keydown", moveShip);
     document.addEventListener("keyup", shoot);
 }
-
+//the blast sound
+    var soundblast = new Audio('./audio/blast.mp3');
 function update() {
     
     requestAnimationFrame(update);
@@ -122,10 +123,6 @@ function update() {
     //To clear out the first drawing of the spaceship while moving 
     //clearRect() is a method of the CanvasRenderingContext2D interface, used for drawing rectangles, images,
     // or other objects on a canvas.
-    //This method is called with four arguments: the x-coordinate of the upper-left corner of the rectangle, 
-    //the y-coordinate of the upper-left corner of the rectangle, the width of the rectangle, and the height of the rectangle.
-    //In the given code, the clearRect() method is called before the animation starts to ensure that the canvas
-    // is empty. This prevents the previous frame of the animation from being displayed on the canvas during the current frame.
     context.clearRect(0, 0, board.width, board.height);
 
     //Spaceship
@@ -134,41 +131,44 @@ function update() {
     //enemy
     for (let i = 0; i < enemyArray.length; i++) {
         let enemy = enemyArray[i];
-        // If an enemy is alive, its behavior is updated.
+
+        // If an enemy is alive
         if (enemy.alive) {
 
             //This line updates the x-coordinate of the enemy by adding the enemyVelocityX value.
             //This typically represents the horizontal movement of the enemy.
-            enemy.x += enemyVelocityX;
+            enemy.x = enemy.x + enemyVelocityX;
 
         //if enemy touches the borders
         if (enemy.x + enemy.width >= board.width || enemy.x <= 0) {
 
-            //then the direction of the enemy is flipped 
-            enemyVelocityX *= -1;
+            //then the direction of the enemy is reversed
+            enemyVelocityX = enemyVelocityX*(-1);
 
             //This adjusts the enemy's position to move it away from the border,
             // preventing it from getting stuck at the edge.
-            enemy.x += enemyVelocityX*2;
+            enemy.x = enemy.x + enemyVelocityX*2;
 
             //move all enemies down by one row or by the height of one enemy
             for (let j = 0; j < enemyArray.length; j++) {
                 enemyArray[j].y += enemyHeight;
             }
-        }
+    }
         
     context.drawImage(enemyImg, enemy.x, enemy.y, enemy.width, enemy.height);
 
 
         //This checks if the y-coordinate of the current enemy is greater than or equal to the y-coordinate of the ship. 
         //If true, it sets the gameOver variable to true, indicating that the game is over.
-        if (enemy.y >= ship.y) {
+        if (enemy.y >= ship.y - tileSize) {
             gameOver = true;
         }
 
         }
     }
+    
 
+    
     //bullets
     for (let i = 0; i < bulletArray.length; i++) {
         let bullet = bulletArray[i];
@@ -187,17 +187,32 @@ function update() {
 
             //!bullet.used: Ensures that the bullet has not been used previously
             //enemy.alive: Ensures that the enemy is still alive.
-            //detectCollision(bullet, enemy): Calls a function (detectCollision) to check if there is a collision between the bullet and the enemy.
-            if (!bullet.used && enemy.alive && detectCollision(bullet, enemy)) {
+            //blast(bullet, enemy): Calls a function (blast) to check if there is a collision between the bullet and the enemy.
+            if (!bullet.used && enemy.alive && blast(bullet, enemy)) {
                 bullet.used = true;
                 enemy.alive = false;
                 enemyCount--;
                 score += 100;
                 localStorage.setItem("score",score)
+                
+                //explosion sound when the enemy is killed 
+                playBlastSound();
             }
         }
     }
-
+    //blast sound
+    function playBlastSound() {
+        // Get the audio element
+        let explosionSound = document.getElementById('blastSound');
+    
+        // If the sound is not playing, start playing it
+        if (explosionSound.paused) {
+            explosionSound.play();
+        } else {
+        //to play the song from begining each time 
+            explosionSound.currentTime = 0;
+        }
+    }
     //clear bullets
     //The length of the bulletArray is greater than 0 
     //first bullet in the array is used 
@@ -213,19 +228,19 @@ function update() {
         score += 500;
 
         //increase the number of enemys in columns by 1
-        //This is done using Math.min to limit the increase and prevent it from going beyond the specified value set that is columns/2 -2.
-        enemyColumns = Math.min(enemyColumns + 1, columns/2 -2); 
+        //This is done using Math.min to limit the number of enemies and prevent it from going beyond the specified value set that is columns/2 -2.
+        enemyColumns = Math.min(enemyColumns + 1, (columns/2 -2)); 
 
         //increase the number of enemys in rows by 1
-        //This is done using Math.min to limit the increase and prevent it from going beyond the specified value set that is rows-4.
-        enemyRows = Math.min(enemyRows + 1, rows-4);  
+        //This is done using Math.min to limit the increment and prevent it from going beyond the specified value set that is rows-4.
+        enemyRows = Math.min(enemyRows + 1, (rows-4));  
         if (enemyVelocityX > 0) {
 
-            // If the enemies are moving towards the right, their speed is increased by 0.2 and if they are moving towards the left, their speed is decreased by 0.2
-            enemyVelocityX += 0.2; //increase the enemy movement speed towards the right
+            // If the enemies are moving towards the right, their speed is increased by 0.5 and if they are moving towards the left, their speed is decreased by 0.2
+            enemyVelocityX = enemyVelocityX +0.5; 
         }
         else {
-            enemyVelocityX -= 0.2; //increase the enemy movement speed towards the left
+            enemyVelocityX = enemyVelocityX -0.5;
         }
 
         //Reset the enemyArray and bulletArray arrays, clearing any existing enemies and bullets.
@@ -238,8 +253,10 @@ function update() {
     context.fillStyle="white";
     context.font="22px courier";
     context.fillText( "Score: " + score, 5, 20);
+
     
 }
+
 
 function moveShip(event) {
     if (gameOver) {
@@ -255,8 +272,8 @@ function moveShip(event) {
     }
     //to move the spaceship right by one tile
     //ship.x + shipVelocityX + ship.width <= board.width so that the spaceship doesnt bounce off from the screen
-    else if (event.code == "ArrowRight" && ship.x + shipVelocityX + ship.width <= board.width) {
-        ship.x = ship.x + shipVelocityX;
+    else if (event.code == "ArrowRight" && ship.x + ship.width + shipVelocityX <= board.width) {
+        ship.x = shipVelocityX + ship.x  ;
     }
 }
 //creating a function so that each time a set of enemies are cleared 
@@ -362,15 +379,13 @@ function shootMobile() {
   shootSound.play();
 }
 
-// Check screen width initially and on resize
+// Check screen width in the begining and to resize
 checkScreenWidth();
 window.addEventListener('resize', checkScreenWidth);
 
 
+//logic behind the blast
+function blast(a, b) {
+    return a.x < b.x + b.width && b.x < a.x + a.width &&  a.y < b.y + b.height && b.y < a.y + a.height ;   
 
-function detectCollision(a, b) {
-    return a.x < b.x + b.width &&   //a's top left corner doesn't reach b's top right corner
-           a.x + a.width > b.x &&   //a's top right corner passes b's top left corner
-           a.y < b.y + b.height &&  //a's top left corner doesn't reach b's bottom left corner
-           a.y + a.height > b.y;    //a's bottom left corner passes b's top left corner
 }
